@@ -1,0 +1,11 @@
+dataset: "MNIST"
+split: "dirichlet"
+num_clients: 20
+alpha: 0.5
+sigma: 0.5
+mean_samples: 300
+min_samples: 100
+max_samples: 500
+train_frac: 0.75
+save_dir: "./datasets/processed_data"
+format: "json"

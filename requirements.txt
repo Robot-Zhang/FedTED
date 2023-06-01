@@ -1,0 +1,8 @@
+torch
+torchvision
+torchtext
+numpy
+vit-pytorch
+omegaconf
+pandas
+tqdm

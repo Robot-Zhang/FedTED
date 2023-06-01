@@ -1,0 +1,44 @@
+# All algorithm in the same experiment use same confing file
+# 1. Settings
+exp_name: "het-template" # name of experiment
+heterogeneous: True
+# 2. Basic args for FedAvg
+rounds: 100 # communication rounds
+epochs: 10 # epochs of local update
+loss: 'CrossEntropyLoss' # loss fn name in torch.nn.*
+opt: 'Adam'  # optimizer name in torch.optim.*, e.g. Adam, SGD
+optim_kwargs: # args for optimizer
+  lr: 1e-3 # learning rate of local update
+batch_size: 32 # batch_size of local update
+sample_frac: 0.5 # select fraction of clients
+test_interval: 1
+# 3. Optional args for FL algorithms
+# ----3.1 Args for Center
+center_update_samples: # if not None, means the used samples in each update epoch, recommend as None
+# ---- 3.2 Args for FedMD and Kt_pFL
+pretrain_epochs: 1   # pretrain epochs in public dataset
+num_alignment: 200   # number of alignment data in FedMD/Kt_pFL
+distill_lr: 1e-4  # lr for distillation
+distill_epochs: 1 # epochs for distillation
+distill_temperature: 20 # temperature for distillation
+# ---- 3.3 Args for FedDF
+#       note: public_data and distill_temperature is same as 3.2
+ensemble_epoch: 5
+ensemble_lr: 1e-4 # lr for ensemble, suggest lower than lr
+# ---- 3.4 Args for FedDistill
+fed_distill_gamma: 1e-4 #1e-4 # According to our test, it's value should not be larger than 1e-4
+early_exit: 5  # exit the algorithm (FedDistill), and use norm FedAvg.
+fed_distill_aggregate: True # if aggregate model weights by avg. If False, vanilla FedDistill (weak but save communication resource), else, FedDistill + FedAvg.
+# ---- 3.5 Args for FedGen
+#       note: distill_temperature s same as 3.2
+generative_alpha: 10.0  # hyper-parameters for clients' local update
+generative_beta: 1.0  # hyper-parameters for clients' local update
+gen_epochs: 10  # epochs for updating generator
+gen_lr: 1e-4  # lr for updating generator
+# ---- 3.6 Args for FedFTG,
+#       note: gen_epochs, gen_lr is same as 3.5
+#             ensemble_epoch, ensemble_lr is same as 3.3
+#             distill_temperature is same as 3.2
+finetune_epochs: 1
+lambda_cls: 1. # hyper-parameters of updating generator
+lambda_dis: 1. # hyper-parameters of updating generator

@@ -1,0 +1,7 @@
+dataset: "shakespare"
+split: "leaf"
+num_clients: 50
+min_samples: 50
+max_samples: 500
+save_dir: "./processed_data"
+format: "json"

@@ -1,0 +1,10 @@
+dataset: "MNIST"
+iid: True
+num_clients: 100
+sigma: 0.1
+mean_samples: 300
+min_samples: 100
+max_samples: 500
+train_frac: 0.75
+save_dir: "./processed_data"
+format: "json"
