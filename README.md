@@ -4,13 +4,11 @@ Source code of "Improving Generalization and Personalization in Model-Heterogene
 
 ![latent-class](.\docs\latent-class.gif)
 
-
-
 <!-- TODO: add paper link and author link after pub -->
 
 ## Declaration
 
-This paper is currently under blind review, and we have ensured that **all contents** in the project **that may reveal the authors' information are removed**.
+This is a paper being reviewed, and questions and reuse are welcome, but please indicate the quotation after we publish it.
 
 ## 1. Requirements
 
@@ -161,21 +159,56 @@ FedTED is a model-heterogeneous generalization-personalization balanced framewor
 
 ### 4.1 Scenario
 
-In model-homogeneous federated learning, expensive communication overhead  hinders the deployment of large-scale models, while users like medical institutions require strong models to guarantee high accuracy. In addition, as a valuable asset, users may not willing to upload their models. Especially, directly sharing homogeneous models is vulnerable to backdoor attacks and model poisoning. Moreover, for heterogeneous devices with different capacities, homogeneous models become powerless to adapt to their hardware conditions. Therefore, in addition to data heterogeneity, model heterogeneity should also be considered.
+In model-homogeneous federated learning, expensive communication overhead hinders the deployment of large-scale models, while users like medical institutions require strong models to guarantee high accuracy. In addition, as a valuable asset, users may not willing to upload their models. Especially, directly sharing homogeneous models is vulnerable to backdoor attacks and model poisoning. Moreover, for heterogeneous devices with different capacities, homogeneous models become powerless to adapt to their hardware conditions. Therefore, in addition to data heterogeneity, model heterogeneity should also be considered.
 
-In this FedTED , we try to solve a more challenging problem than before: ***How to ensure both generalization and personalization of federated learning when models and data are heterogeneous (two-fold heterogeneous)?*** Overcoming this obstacle, FL will be able to enjoy multiple benefits in meeting personalized needs, integrating generic model, and protecting user privacy.
+In this FedTED , we try to solve a more challenging problem than before: ***How can Federated Learning enhance both generalization and personalization when clients' models are heterogeneous?*** Overcoming this obstacle, FL will be able to enjoy multiple benefits in meeting personalized needs, integrating generic model, and protecting user privacy.
 
 ![background](.\docs\background.png)
 
-In the scenario of FedTED, *both clients' data and models are heterogeneous*, which makes all model-homogeneous federated algorithms no longer applicable. Due to privacy concerns, users no longer share their local model but upload latent knowledge. Using this knowledge, the server can reconstruct a generic model, while clients can train better-personalized models.
+In the scenario of FedTED, *both clients' data and models are heterogeneous*, which makes it challenging. Due to privacy concerns, users no longer share their local model but upload latent knowledge. Using this knowledge, the server can reconstruct a generic model, while clients can train better-personalized models.
 
 ### 4.2 Workflow
 
-When FedTED is working, the clients first distill their feature extractor under the guidance of the proxy data (*flow (1) in the figure*), and then updates the distilled feature extractor and the twin predictors respectively (*flow (2) in the figure*). In model-heterogeneous scenarios, only the generic predictor is uploaded. Afterwards, the server trains a feature generator through the uploaded predictors (*flow (3) in the figure*), generates proxy data, and aggregates the uploaded predictors (*flow (4) in the figure*). The generated proxy data can be used to train a feature extractor, which in turn forms a new generic model with the aggregated predictor.
+Overview of FedTED. It is orchestrated by three novel components: twin-branch local update with feature distillation, feature-level heterogeneous aggregation, and generator-based model reconstruction. In the figure, solid arrows represent the forward flow, and dashed arrows represent the backward flow. We use $G(\cdot)$ to denote the feature generator, $E(\cdot)$ to denote the feature extractors, $C(\cdot)$ to denote the predictors, and ${{\hat \sigma }_k}$ to denote the client-specific weight vectors.
+
+
+Next, we will elaborate on the three novel components of FedTED.
++ **Twin-branch local update with feature distillation** is processed in "Clients" part of the figure. It consists of a sampler, a feature extractor ${E_k}({x_k};{w_{ek}})$, and two predictors ${C_g}(z;{w_{pk}})$, ${C_p}(z;{{\tilde w}_{pk}})$. Among them, the sampler selects the appropriate proxy data $\tilde z_k$ based on the local data distribution $p({y_k})$. The selected proxy data $\tilde z_k$ is used as global knowledge to assist in updating the local feature extractor. The predictors ${C_g}(z;{w_{pk}})$ and ${C_p}(z;{{\tilde w}_{pk}})$ are twin task-specific layers that share the same structure. Among these two predictors, ${C_g}(z;{w_{pk}})$ is regarded as generic branch and ${C_p}(z;{{\tilde w}_{pk}})$ is regarded as personalized branch. For personalized tasks, the output of the personalized predictor is directly taken as the predicted value. During the training phase of general tasks, the generic output is corrected by a prior vector ${\hat \sigma }_k$ (determined by the batch data distribution). It's worth noting that only generic predictors are uploaded during cooperative training.
++ **Feature-level heterogeneous aggregation** is processed in "Server" part of the figure. It consists of a feature generator $G(\tilde y, \varepsilon; w_g)$, a server-side generic predictor $C(z,w_p)$, and the client-uploaded predictors $\{C_g(z,w_pk)\}$. The generator takes legal labels $\tilde y$ and random noise $\varepsilon$ as inputs to generate latent features $\tilde z$. The generated latent features and corresponding labels constitute the proxy data. The goal of $G(\tilde y, \varepsilon; w_g)$ is to make the generated features indistinguishable from the real features. The server-side generic predictor $C(z,w_p)$ is averaged by the other predictors $\{C_g(z,w_pk)\}$ and fine-tuned with proxy data. Since most models use a fully connected network as the output layer, the predictors of heterogeneous models can adopt a similar structure. In FedTED, the predictors are assumed to take the same input and output space. This can be applied to arbitrary model-heterogeneous scenarios by simply adding fully connected layers as heads. For example, for heterogeneous models of $10$ classes, a fully connected network with 10 inputs and 10 outputs can be added as the predictor after their output layer to match FedTED.
++ **Generator-based model reconstruction** is processed in "Reconstruction" part of the figure. It consists of a sampler, a feature extractor $E(x;w_e)$, and a generic predictor $C(z,w_p)$. The generic predictor comes from the "Server" component, and the sampler works the same as in "Clients" component. The feature extractor $E(x;w_e)$ is trained by taking the generated features as labels. Here, the generated features can be regarded as the soft labels in the dataset distillation. For the generic clients, the input to the feature extractor comes from their local dataset. For the server, the input comes from public samples, which does not need to be large. After completing the training of the feature extractor, a generic model can be obtained by stacking the feature extractor and the predictor. This generic model can be used to predict new data or be distributed directly to cold start clients.
+
 
 ![framework](.\docs\framework.png)
 
-### 4.3 Evaluation
+When FedTED is working, the clients first distill their feature extractor under the guidance of the proxy data (flow (1) in the figure). Then, they update the distilled feature extractor and the twin predictors respectively (flow (2) in the figure). In the next step, the server trains a feature generator through the uploaded predictors (flow (3) in the figure). Additionally, a global generic predictor can be obtained by aggregating the predictors uploaded by the clients (flow (4) in the figure). Finally, the generated proxy data can be used to train a feature extractor, which in turn forms a new generic model with the aggregated predictor (flow (5) in the figure). Note that the generic predictor is updated and shared among all clients in the next round of FL. The workflow of FedTED is similar to classical Federated Learning. That is, the steps of client selection, information distribution, local update, parameters upload, and aggregation are performed in sequence. The compatibility with other frameworks is further enhanced by the fact that FedTED only requires generic predictors to be uploaded during cooperative training. This makes it easy to integrate FedTED with any framework that supports Federated Learning.
+
+
+
+#### 4.3 Experimental Setup
+
+#### Benchmarks
+
+FedTED has been compared with SOTA algorithms for both model-homogeneous and model-heterogeneous Federated Learning. In addition to the most basic Local (training isolated on clients), Center (centralizing all data to the server), and FedAvg (vanilla Federated Learning), two data-heterogeneous algorithms, FedProx and SCAFFOLD, have been compared. Furthermore, the ensemble distill based FedDF, the SOTA generic-personalized balanced FedRoD, and two data-free distillation algorithms FedFTG and FedGen  are also take into account. Additionally, three model-heterogeneous Federated Learning algorithms, FedDistill, FedMD, and Kt-pFL are involved in the comparison. Among them, FedDistill aggregates label-specific logits, FedMD averages clients' logits of public data, while Kt-pFL weight sum clients' logits by a knowledge transfer coefficient.
+
+#### Datasets and Models
+FedTED is evaluated on four different tasks, including image classification, sentiment analysis, next character prediction, and synthetic data classification. The settings of used datasets are shown as follows.
+
+![background](.\docs\dataset.png)
+
+Specifically, image classification is tested on FEMNIST, CELEBA, MNIST, Fashion-MNIST, and CIFAR10, and the heterogeneous models are configured in the same way as FedMD. Sent140 is used for sentiment analysis, which is extracted from Twitter. Its task is to distinguish whether the text is positive or negative. 
+The heterogeneous model adopts 1 to 3 layers of LSTM, GRU and RNN, plus Glove6B as a fixed embedding layer. The next character prediction uses Shakespeare, whose task is to predict what each role in Shakespeare's works said. Here, each role is considered a client. Its model configuration is similar to Sent140, but the embedding layer is trained from scratch. The dataset used for synthetic data classification is the same as that of FedProx, and its heterogeneous model is a multi-layer perceptron with different parameters. For the above datasets, FEMNIST, CELEBA, Sent140, and Shakespeare are processed in the way of LEAF. MNIST, Fashion-MNIST, CIFAR10, and Synthetic control the class equilibrium with the Dirichlet distribution ($\alpha=0.1$) and the clients' sample size with the Log-Normal distribution ($\sigma=0.5$). The structure of these models is shown as follows.
+
+![background](.\docs\models.png)
+
+#### Configurations
+
+Unless specified otherwise, all of our experiments are conducted using the configurations described in this section. For all datasets, the number of communication rounds in Federated Learning is 100. In each communication round, the client's local update epoch is 10, and the proportion of activated clients to participate in training is 0.5. The test interval for Federated Learning performance is 1, and the number of clients is set to 20. For the hyperparameters of training models, the empirical loss function is taken to be Cross Entropy. The optimizer is Adam, and its learning rate is fixed at 1e-3, with the rest of the arguments taken as the default values in PyTorch. The batch size is set as 32. For algorithms that require a public dataset, such as FedMD, the public dataset is generated by Synthetic with the same input/output dim. For distill-based algorithms, the distillation data size is 200, the distillation learning rate is 1e-4, the distillation epoch is 1, and the distillation temperature is fixed at 20.0. For algorithms such as FedDF that require model ensemble on the server, the ensemble epoch is 5, and the ensemble learning rate is 1e-4. Since the original FedDistill is mainly targeted to reduce communication costs, its performance is too weak in most scenes. Thus, when the models are homogeneous, FedDistill first performs parameter aggregation like FedAvg. In algorithms such as FedGen that require a training generator, the epoch of the training generator is taken to be 10, and the learning rate is 1e-4. Additionally, the hyperparameters in FedGen, FedProx, and FedFTG are set with reference to their original papers.
+
+#### Implementation
+
+All of the experiments are conducted using the PyTorch framework. The benchmark algorithms and Federated Learning frameworks are refactored according to their corresponding papers and open-source codes. Our code runs on a Ubuntu 22.04 server with an Intel(R) Core(TM) i9-9900KF CPU@3.6GHz and 4 NVIDIA Tesla V100 GPU cards.
+
+### 4.4 Evaluation
 
 #### Weight Distribution of  Twin Branches
 
@@ -201,7 +234,7 @@ In FedTED, we decouple the twin-branch network of FedTED into two related tasks 
 
  ![re-weight-performance](.\docs\re-weight-performance.png)
 
-
+For more detailed evaluation, , please refer to our paper.
 
 ## 5. Contribution Navigation
 
