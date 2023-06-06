@@ -216,23 +216,23 @@ We count the weights of twin branches and get the weight distribution. After tra
 
 + weights of generic branch
 
-![latent-class](.\docs\g-weight.gif)
+![latent-class](/docs/g-weight.gif)
 
 + weights of personalized branch
 
-![latent-class](.\docs\p-weight.gif)
+![latent-class](/docs/p-weight.gif)
 
 #### Learned Latent Knowledge of FedTED
 
 We take the argmax of latent for each sample as its feature. Among them, the latent features of different classes of data have significant differences. This indicates that when the model converges, the model trained by FedTED can preserve the knowledge of the sample data in a richer form in by latent, which can then be transferred between the client and the server.
 
-![latent-class](.\docs\latent-class.gif)
+![latent-class](/docs/latent-class.gif)
 
 #### Effectiveness of Re-wight
 
 In FedTED, we decouple the twin-branch network of FedTED into two related tasks by a prior conditional corrector. Using this concise re-weight variable, the training effect of FedTED is significantly stabilized. 
 
- ![re-weight-performance](.\docs\re-weight-performance.png)
+ ![re-weight-performance](/docs/re-weight-performance.png)
 
 For more detailed evaluation, , please refer to our paper.
 
