@@ -2,7 +2,7 @@
 
 Source code of "Improving Generalization and Personalization in Model-Heterogeneous Federated Learning"
 
-![latent-class](.\docs\latent-class.gif)
+![latent-class](/docs/latent-class.gif)
 
 <!-- TODO: add paper link and author link after pub -->
 
@@ -163,7 +163,7 @@ In model-homogeneous federated learning, expensive communication overhead hinder
 
 In this FedTED , we try to solve a more challenging problem than before: ***How can Federated Learning enhance both generalization and personalization when clients' models are heterogeneous?*** Overcoming this obstacle, FL will be able to enjoy multiple benefits in meeting personalized needs, integrating generic model, and protecting user privacy.
 
-![background](.\docs\background.png)
+![background](/docs/background.png)
 
 In the scenario of FedTED, *both clients' data and models are heterogeneous*, which makes it challenging. Due to privacy concerns, users no longer share their local model but upload latent knowledge. Using this knowledge, the server can reconstruct a generic model, while clients can train better-personalized models.
 
@@ -178,7 +178,7 @@ Next, we will elaborate on the three novel components of FedTED.
 + **Generator-based model reconstruction** is processed in "Reconstruction" part of the figure. It consists of a sampler, a feature extractor $E(x;w_e)$, and a generic predictor $C(z,w_p)$. The generic predictor comes from the "Server" component, and the sampler works the same as in "Clients" component. The feature extractor $E(x;w_e)$ is trained by taking the generated features as labels. Here, the generated features can be regarded as the soft labels in the dataset distillation. For the generic clients, the input to the feature extractor comes from their local dataset. For the server, the input comes from public samples, which does not need to be large. After completing the training of the feature extractor, a generic model can be obtained by stacking the feature extractor and the predictor. This generic model can be used to predict new data or be distributed directly to cold start clients.
 
 
-![framework](.\docs\framework.png)
+![framework](/docs/framework.png)
 
 When FedTED is working, the clients first distill their feature extractor under the guidance of the proxy data (flow (1) in the figure). Then, they update the distilled feature extractor and the twin predictors respectively (flow (2) in the figure). In the next step, the server trains a feature generator through the uploaded predictors (flow (3) in the figure). Additionally, a global generic predictor can be obtained by aggregating the predictors uploaded by the clients (flow (4) in the figure). Finally, the generated proxy data can be used to train a feature extractor, which in turn forms a new generic model with the aggregated predictor (flow (5) in the figure). Note that the generic predictor is updated and shared among all clients in the next round of FL. The workflow of FedTED is similar to classical Federated Learning. That is, the steps of client selection, information distribution, local update, parameters upload, and aggregation are performed in sequence. The compatibility with other frameworks is further enhanced by the fact that FedTED only requires generic predictors to be uploaded during cooperative training. This makes it easy to integrate FedTED with any framework that supports Federated Learning.
 
@@ -193,12 +193,12 @@ FedTED has been compared with SOTA algorithms for both model-homogeneous and mod
 #### Datasets and Models
 FedTED is evaluated on four different tasks, including image classification, sentiment analysis, next character prediction, and synthetic data classification. The settings of used datasets are shown as follows.
 
-![background](.\docs\dataset.png)
+![dataset](/docs/dataset.png)
 
 Specifically, image classification is tested on FEMNIST, CELEBA, MNIST, Fashion-MNIST, and CIFAR10, and the heterogeneous models are configured in the same way as FedMD. Sent140 is used for sentiment analysis, which is extracted from Twitter. Its task is to distinguish whether the text is positive or negative. 
 The heterogeneous model adopts 1 to 3 layers of LSTM, GRU and RNN, plus Glove6B as a fixed embedding layer. The next character prediction uses Shakespeare, whose task is to predict what each role in Shakespeare's works said. Here, each role is considered a client. Its model configuration is similar to Sent140, but the embedding layer is trained from scratch. The dataset used for synthetic data classification is the same as that of FedProx, and its heterogeneous model is a multi-layer perceptron with different parameters. For the above datasets, FEMNIST, CELEBA, Sent140, and Shakespeare are processed in the way of LEAF. MNIST, Fashion-MNIST, CIFAR10, and Synthetic control the class equilibrium with the Dirichlet distribution ($\alpha=0.1$) and the clients' sample size with the Log-Normal distribution ($\sigma=0.5$). The structure of these models is shown as follows.
 
-![background](.\docs\models.png)
+![models](/docs/models.png)
 
 #### Configurations
 
