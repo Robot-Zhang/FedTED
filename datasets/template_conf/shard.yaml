@@ -1,0 +1,23 @@
+dataset: "MNIST"
+split: "shard"
+num_clients: 100
+sub_classes:  # can be none
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+alpha:
+sigma: 0.1
+shard_size: 150
+mean_samples: 300
+min_samples: 100
+max_samples: 500
+train_frac: 0.75
+save_dir: "./processed_data"
+format: "json"

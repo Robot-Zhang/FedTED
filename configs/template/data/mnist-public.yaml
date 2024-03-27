@@ -1,0 +1,13 @@
+dataset: "synthetic"
+num_clients: 1
+num_classes: 10
+dim: 784
+alpha: 0.5
+beta: 0.5
+sigma: 0.
+mean_samples: 300
+min_samples: 100
+max_samples: 500
+train_frac: 0.9
+save_dir: "./datasets/processed_data"
+format: "json"
