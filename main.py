@@ -41,14 +41,14 @@ def parser_args():
                         help="num clients, if not specific, use the value in data_conf.yaml")
     parser.add_argument("--exp_name", type=str, default=None,
                         help="exp name, sub dir for save log, if not specific, use the value in exp_conf.yaml")
-    parser.add_argument("--exp_conf", type=str, default="./configs/template/exp/hom-exp.yaml",
+    parser.add_argument("--exp_conf", type=str, default="./configs/template/exp/het-exp.yaml",
                         help="experiment config yaml files")
     parser.add_argument("--data_conf", type=str, default="./configs/template/data/mnist.yaml",
                         help="dataset config yaml files")
     parser.add_argument("--public_conf", type=str, default="./configs/template/data/mnist-public.yaml",
                         help="public dataset config yaml files, default is None. For FedMD and Kt-pFL."
                              "Here, we use the synthetic data as public dataset")
-    parser.add_argument("--model_conf", type=str, default="./configs/template/model/hom-mnist.yaml",
+    parser.add_argument("--model_conf", type=str, default="./configs/template/model/het-mnist.yaml",
                         help="model config yaml files")
     parser.add_argument("--device", type=str, default="cuda:0", help="run device (cpu | cuda:x, x:int > 0)")
     parser.add_argument("--seed", type=int, default=0, help="random seed")
